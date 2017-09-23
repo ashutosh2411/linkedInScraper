@@ -1,7 +1,7 @@
 # linkedInScraper
 LinkedIn Scraper in Python
 
-Directory structure:
+DIRECTORY STRUCTURE:
   - scripts: contains the scripts
   - data_source: contains two files
     - links.txt: list of links to scrape
@@ -9,11 +9,11 @@ Directory structure:
   - output: contains the final output files 
   - other hidden files and folders
 
-Prerequisites:
+PREREQUISITES:
   - Python 2 / 3
   - Libraries: Selenium, time, os, sys
 
-How to use:
+HOW TO USE:
   - SCRAPING
 	- Navigate to scripts folder : 'cd scripts/'.
 	- Execute 'python scraper.py'.
