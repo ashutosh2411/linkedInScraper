@@ -2,11 +2,12 @@
 LinkedIn Scraper in Python
 
 Directory structure:
-  - scripts: 		contains the scripts
-  - data_source:	contains tho files
-    - links.txt: 	list of links to scrape
-    - company.txt: 	list of companies to look for, in experience section
-  - output:			
+  - scripts: contains the scripts
+  - data_source: contains two files
+    - links.txt: list of links to scrape
+    - company.txt: list of companies to look for, in experience section
+  - output: contains the final output files 
+  - other hidden files and folders
 
 Prerequisites:
   - Python 2 / 3
@@ -20,6 +21,7 @@ How to use:
 	- A browser window pops up. Enter LinkedIn login credentials within 30 seconds.
 	- The browser will open the links one by one. 
 	- If there are any exceptions, the program will ask if you'd like to reopen the exceptions. To continue with checking exceptions press 'y'; otherwise, press any key.
+	- The program creates a file 'output/scraping_exceptions.txt' which contains list of profile link numbers that couldn't be opened.
   - PROCESS
   	- Navigate to scripts folder : 'cd scripts/'.
 	- Execute 'python scraper.py'.
