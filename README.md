@@ -9,9 +9,9 @@ DIRECTORY STRUCTURE:
   - output: contains the final output files 
   - other hidden files and folders
 
-PREREQUISITES:
+SYSTEM REQUIREMENTS:
   - Python 2 / 3
-  - Libraries: Selenium, time, os, sys
+  - Libraries: selenium, time, os, sys
 
 HOW TO USE:
   - SCRAPING
