@@ -6,75 +6,118 @@ import os
 import sys
 from os import listdir
 from os.path import isfile, join
+
+# all modifications to be done in following lines
+
+# wait for user to input login credentials
+# set to >=5 if you want to signal login success by 'pressing any key'
+LOGIN_TIME 		= 30
+
+# wait before loading next page in general
+WAIT_GENERAL 	= .75
+
+# wait before loading next in case of exception, which may be due to connectivity issues
+WAIT_EXCEPTION	= 3
+
+# Modify further codec section at your own risk
 counter = 0
-#username = driver.find_element_by_class_name("session_key-login")
-#password = driver.find_element_by_class_name('password')
-#username.send_keys('okabefg001@gmail.com')
-#password.send_keys('Ashutosh204')
-#driver.find_element_by_class_name("signin").click()
-#driver.execute_script('window.open();');
-#driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't') 
-#g = raw_input('Delete data_processed?')
-#u = raw_input('Delete data_profiles?')
+#g = raw_input('Delete .data_processed?')
+#u = raw_input('Delete .data_profiles?')
 #c = raw_input('Delete output?')
-g = 'y'
-u = 'y'
-c = 'y'
 driver = webdriver.Firefox()
-if str(g) == 'y':
-	file = [f for f in listdir('../.data_profiles') if isfile(join('../.data_profiles', f))]
-	for f in file:
-		os.remove('../.data_profiles/'+f)
-if str(u) == 'y':
-	file = [f for f in listdir('../.data_processed') if isfile(join('../.data_processed', f))]
-	for f in file:
-		os.remove('../.data_processed/'+f)
-if str(c) == 'y':
-	file = [f for f in listdir('../output') if isfile(join('../output', f))]
-	for f in file:
-		os.remove('../output/'+f)
-z=open('../output/scraping_exceptions.txt', 'w')
+file = [f for f in listdir('../output') if isfile(join('../output', f))]
+for f in file:
+	os.remove('../output/'+f)
+z=open('../output/scraping_exceptions.txt', 'w+')
 driver.get('https://www.linkedin.com/uas/login')
-time.sleep(30)
-print 'starting'
+if (LOGIN_TIME > 5):
+	time.sleep(LOGIN_TIME-5)
+	print ('starting')
+	time.sleep(5)
+else:
+	raw_input('Press any key to continue... ')
+	print ('starting')
 def ass (text) : return ''.join([i if ord(i) < 128 else ' ' for i in text]) 
 
 lines = [line.rstrip('\n') for line in open('../data_source/links.txt')]
 companies = [line.rstrip('\n')for line in open('../data_source/company.txt')]
 i = 0;
 for i in range(len(lines)):
-	#driver.execute_script('window.open();');
-#	driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't') 
 	try:
+		sys.stdout.write('\r')
+		sys.stdout.flush()
 		print ('receiving content: '+str(i))
 		driver.get(lines[i])
+		time.sleep(WAIT_GENERAL)
 		comp = companies[i]
 		file = open('../.data_profiles/'+str(i), 'w')
-		elem = driver.find_element_by_class_name("pv-top-card-section__body").text
-		elem = ass(elem)
-		#elem = driver.find_element_by_class_name("pv-top-card-section__summary-text").text
-		#elem = ass(elem)
-		file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
-		time.sleep(1.25)
-		elem = driver.find_element_by_class_name('experience-section').text
-		elem = ass(elem)
-		#print (elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' '))
-		file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
-			#elem = driver.find_element_by_class_name('pv-entity__extra-details').text
-			#file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' '))
+		try:
+			elem = driver.find_element_by_class_name("pv-top-card-section__body").text
+			elem = ass(elem)
+			file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
+		except:
+			driver.get(lines[i])
+			time.sleep(WAIT_EXCEPTION)
+			elem = driver.find_element_by_class_name("pv-top-card-section__body").text
+			elem = ass(elem)
+			file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
+		try:
+			elem = driver.find_element_by_class_name('experience-section').text
+			elem = ass(elem)
+			file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
+		except:
+			driver.get(lines[i])
+			time.sleep(WAIT_EXCEPTION)
+			elem = driver.find_element_by_class_name('experience-section').text
+			elem = ass(elem)
+			file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
 		file.close()
-		sys.stdout.write("\033[F")
 	except Exception:
-		print 'can\'t complete ' + str(i)
+		print ('can\'t complete ' + str(i))
 		counter = counter + 1
 		z.write(str(i)+'\n')
-#	driver.execute_script('window.close();');
-#	driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w') 
-	#driver.close()
-print 'Completed with '+str(counter)+' exceptions'
+print ('Completed with '+str(counter)+' exceptions')
 if counter == 0:
 	z.write('NONE')
 z.close()
+while 1==1:
+	
+	choice = 'n'
+	if not counter ==0:
+		choice = raw_input('would you like to retry exceptions?')
+	else:
+		pass
+	if(choice == 'y'):
+		counter = 0
+		exception = open('../output/scraping_exceptions.txt','r')
+		retry = exception.read().split()
+		exception.close()
+		os.remove('../output/scraping_exceptions.txt')
+		z=open('../output/scraping_exceptions.txt', 'w+')
+		print (retry)
+		for i in range(len(retry)):
+			try:
+				print ('receiving content: '+str(int(retry[i])))
+				driver.get(lines[int(int(retry[i]))])
+				time.sleep(WAIT_EXCEPTION)
+				comp = companies[int(retry[i])]
+				file = open('../.data_profiles/'+str(int(retry[i])), 'w')
+				elem = driver.find_element_by_class_name("pv-top-card-section__body").text
+				elem = ass(elem)
+				file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
+				elem = driver.find_element_by_class_name('experience-section').text
+				elem = ass(elem)
+				file.write(elem.replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u'\u2022', ' ').replace(u'\u2013', ' '))
+				file.close()
+				#sys.stdout.write("\033[F")
+			except Exception:
+				print ('can\'t complete ' + str(int(retry[i])))
+				counter = counter + 1
+				z.write(str(int(retry[i]))+'\n')
+		print ('Completed with '+str(counter)+' exceptions')
+		z.close()
+	else:
+		break
 driver.quit()
 
 
@@ -83,23 +126,19 @@ companies = [line.rstrip('\n')for line in open('../data_source/company.txt')]
 
 file = [f for f in listdir('../.data_profiles') if isfile(join('../.data_profiles', f))]
 lines = [line.rstrip('\n') for line in open('../data_source/links.txt')]
-z=open('../output/manual_check.txt','w')
 for x in range(len(file)):
-	#print companies[x]
-	#print x, file[x]
 	f = open('../.data_profiles/'+file[x],'r')
 	content = f.read().split('\n')
 	y = open('../.data_processed/'+file[x]+'.txt','w')
 	i = 6; 
-	#if not (content[i] == 'See more' or content[i+1] == 'Company Name'):
 	try:	
 		if(content[7]=='Company Name' or content[6]=='See more' or content[6]=='Company Name'):
 			y.write('NA')
 		else:	
-			y.write(content[i].replace(',', ' ').replace('\"',' '))
+			y.write(content[i][:-1].replace(',', ' ').replace('\"',' '))
 		y.write('\n')
-		y.write(content[0].replace(',', ' ').replace('\"',' ')+', ')
-		y.write(content[3].replace(',', ' ').replace('\"',' ').replace('0','').replace('1','').replace('2','').replace('3','').replace('4','').replace('5','').replace('6','').replace('7','').replace('8','').replace('9','') +', ')
+		y.write(content[0]	.replace(',', ' ').replace('\"',' ')+', ')
+		y.write(content[3][:-1].replace(',', ' ').replace('\"',' ').replace('0','').replace('1','').replace('2','').replace('3','').replace('4','').replace('5','').replace('6','').replace('7','').replace('8','').replace('9','') +', ')
 		flag = 0
 		a=0
 		while (a<len(content)):
@@ -130,30 +169,22 @@ for x in range(len(file)):
 						y.write(content[a+5].replace(',',' ').replace('.',' ')+' , ')
 					except:
 						y.write('NA, ', )
-					#y.write(companies[int(file[x])].replace(',', ' ').replace('\"',' ')+', ')
-					y.write(lines[x]+' , ')
-					#print('done')
+					y.write(lines[int(file[x])][:-1]+' , ')
 					flag = 1
 			a=a+1
 		if flag == 0:
-			#print '------------'+file[x]
 			counter = counter + 1
-			z.write(file[x]+'\n')
 			y.write('NA, '*5)
 	except: 
 		pass
 	y.close()
-if counter == 0:
-	z.write('NONE')
-z.close()
-print 'no of manual checks to be done: '+str(counter)
-	#print '++++++++++++++++++++++++++++++++++++++++++++++++++'
+print ('Files ready to be exported. Execute \"python export.py\"')
 
 
 exp_file = open('../output/export.csv','w')
 
 file = [f for f in listdir('../.data_processed')]
-lines = [line.rstrip('\n') for line in open('../data_source/links.txt')]
+#lines = [line.rstrip('\n') for line in open('../data_source/links.txt')]
 
 for x in xrange(len(file)):
 	#print x
@@ -161,4 +192,24 @@ for x in xrange(len(file)):
 	y = t.readline()[:-1]+' '
 	x = t.readline()+' '
 	exp_file.write(x+y+'\n')
-print 'Exported in /output/export.csv'
+print ('Exported in /output/export.csv')
+g='n'
+if str(g) == 'y':
+	file = [f for f in listdir('../.data_profiles') if isfile(join('../.data_profiles', f))]
+	for f in file:
+		os.remove('../.data_profiles/'+f)
+u='n'
+if str(u) == 'y':
+	file = [f for f in listdir('../.data_processed') if isfile(join('../.data_processed', f))]
+	for f in file:
+		os.remove('../.data_processed/'+f)
+
+
+#if str(g) == 'y':
+file = [f for f in listdir('../.data_profiles') if isfile(join('../.data_profiles', f))]
+for f in file:
+	os.remove('../.data_profiles/'+f)
+file = [f for f in listdir('../.data_processed') if isfile(join('../.data_processed', f))]
+for f in file:
+	os.remove('../.data_processed/'+f)
+os.remove('geckodriver.log')

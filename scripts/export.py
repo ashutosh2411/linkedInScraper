@@ -12,4 +12,4 @@ for x in xrange(len(file)):
 	y = t.readline()[:-1]+' '
 	x = t.readline()+' '
 	exp_file.write(x+y+'\n')
-print 'Exported in /output/export.csv'
+print ('Exported in /output/export.csv')
