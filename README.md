@@ -2,7 +2,7 @@
 LinkedIn Scraper in Python
 
 LICENSE: 
-  - This code is the intellectual property of Ashutosh Upadhye <ashutoshu2411@gmail.com>. It is NOT free. Use without proper permission from above mentioned might attract legal attention. 
+This code now is open-source. Feel free to use it. :)
 
 DIRECTORY STRUCTURE:
   - scripts: contains the scripts
